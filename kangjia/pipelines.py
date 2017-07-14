@@ -16,9 +16,6 @@ class KangjiaPipeline(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        logging.error('&&&&{0}&&&&'.format(type(crawler.settings)))
-        for set in crawler.settings:
-            logging.error('&&&&{0}&&&&'.format(set))
         return cls(
             mongo_collection=crawler.settings.get('MONGODB_COLLECTION')
         )
@@ -34,7 +31,7 @@ class KangjiaPipeline(object):
 
     def process_item(self, item, spider):
         for key, data in item.iteritems():
-            item[key] = ','.join(data)
+            item[key] = ','.join(filter(lambda x: x != u'/', data))
         self.collection.insert(dict(item))
         # valid = True
         # for data in item:
