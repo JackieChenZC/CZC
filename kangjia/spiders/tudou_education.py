@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
+import sys
+import time
+
 from scrapy.linkextractors import LinkExtractor
 from scrapy.loader import ItemLoader
-from scrapy.spiders import CrawlSpider, Rule, Request
 from scrapy.selector import Selector
-from kangjia.items import TuDouItem
-import time
-import hashlib
-import sys
+from scrapy.spiders import CrawlSpider, Rule, Request
 
+from kangjia.items import TuDouItem
 
 default_encoding = 'utf-8'
 if sys.getdefaultencoding() != default_encoding:
@@ -27,7 +27,7 @@ class TudouEducationSpider(CrawlSpider):
     )
 
     custom_settings = {
-        'MONGODB_COLLECTION': 'a_kangjia_tudou_education',
+        'MONGODB_COLLECTION': name,
     }
 
     headers = {
@@ -76,9 +76,6 @@ class TudouEducationSpider(CrawlSpider):
         items.add_value("_in_time", current_time)
         items.add_value("_utime", current_time)
 
-        m = hashlib.md5()
-        m.update(self.name + current_time)
-        record_id = m.hexdigest()
-        items.add_value("_record_id", record_id)
+        items.add_value("_record_id", self.name)
         # return items
         yield items.load_item()

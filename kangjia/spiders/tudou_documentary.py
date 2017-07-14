@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule, Request
-from scrapy.selector import Selector
-from kangjia.items import TuDouItem
-import time
-import hashlib
 import sys
+import time
+
+from scrapy.linkextractors import LinkExtractor
+from scrapy.loader import ItemLoader
+from scrapy.selector import Selector
+from scrapy.spiders import CrawlSpider, Rule, Request
+
+from kangjia.items import TuDouItem
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -54,57 +56,23 @@ class TudouDocumentarySpider(CrawlSpider):
     def parse_detail(self, response):
         self.logger.info('当前正在抓取的详情页是：%s' % response.url)
 
-        sel = Selector(response).xpath("//div[@class='p-base']/ul")
-        items = TuDouItem()
-        items['program'] = Selector(response).xpath("//div[@class='p-thumb']/a/@title").extract()
-        items['area'] = sel.xpath("./li[4]/a/text()").extract()
-        items['image'] = Selector(response).xpath("//div[@class='p-thumb']/img/@src").extract()
+        items = ItemLoader(TuDouItem(), response=response)
 
-        presenter_0 = sel.xpath("./li[3]/text()").extract()
-        if presenter_0:
-            presenter = [presenter_0[0].split('：')[1]]
-        else:
-            presenter = []
-        items['presenter'] = presenter
-
-        items['episodes'] = sel.xpath("//li[@class='p-row p-renew']/text()").extract()
-        items['tag'] = sel.xpath("./li[5]/a/text()").extract()
-
-        play_cnt_0 = sel.xpath("./li[7]/text()").extract()
-        if play_cnt_0:
-            play_cnt = [play_cnt_0[0].split('：')[1]]
-        else:
-            play_cnt = []
-        items['play_cnt'] = play_cnt
-
-        comment_cnt_0 = sel.xpath("./li[8]/text()").extract()
-        if comment_cnt_0:
-            comment_cnt = [comment_cnt_0[0].split('：')[1]]
-        else:
-            comment_cnt = []
-        items['comment_cnt'] = comment_cnt
-
-        voteup_cnt_0 = sel.xpath("./li[9]/text()").extract()
-        if voteup_cnt_0:
-            voteup_cnt = [voteup_cnt_0[0].split('：')[1]]
-        else:
-            voteup_cnt = []
-        items['voteup_cnt'] = voteup_cnt
-
-        introduction_0 = sel.xpath("./li[@class='p-row p-intro']/span/text()").extract()
-        if introduction_0:
-            introduction = [introduction_0[0].split('：')[1]]
-        else:
-            introduction = []
-        items['introduction'] = introduction
+        items.add_xpath("program", "//div[@class='p-thumb']/a/@title")
+        items.add_xpath("area", "//div[@class='p-base']/ul/li[4]/a/text()")
+        items.add_xpath("image", "//div[@class='p-thumb']/img/@src")
+        items.add_xpath("presenter", "//div[@class='p-base']/ul/li[3]/a/text()")
+        items.add_xpath("episodes", "//li[@class='p-row p-renew']/text()")
+        items.add_xpath("tag", "//div[@class='p-base']/ul/li[5]/a/text()")
+        items.add_xpath("play_cnt", "//div[@class='p-base']/ul/li[7]/text()")
+        items.add_xpath("comment_cnt", "//div[@class='p-base']/ul/li[8]/text()")
+        items.add_xpath("voteup_cnt", "//div[@class='p-base']/ul/li[9]/text()")
+        items.add_xpath("introduction", "//div[@class='p-base']/ul/li[@class='p-row p-intro']/span/text()")
 
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        items['_in_time'] = [current_time]
-        items['_utime'] = [current_time]
+        items.add_value("_in_time", current_time)
+        items.add_value("_utime", current_time)
 
-        m = hashlib.md5()
-        m.update(self.name + current_time)
-        record_id = m.hexdigest()
-        items['_record_id'] = [record_id]
+        items.add_value("_record_id", self.name)
         # return items
-        yield items
+        yield items.load_item()
