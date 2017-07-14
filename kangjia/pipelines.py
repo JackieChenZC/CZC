@@ -11,14 +11,26 @@ import logging
 
 
 class KangjiaPipeline(object):
-    def __init__(self):
-        connection = pymongo.MongoClient(
-            settings['MONGODB_SERVER'],
-            settings['MONGODB_PORT']
+    def __init__(self, mongo_collection):
+        self.mongo_collection = mongo_collection
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        logging.error('&&&&{0}&&&&'.format(type(crawler.settings)))
+        for set in crawler.settings:
+            logging.error('&&&&{0}&&&&'.format(set))
+        return cls(
+            mongo_collection=crawler.settings.get('MONGODB_COLLECTION')
         )
-        db = connection[settings['MONGODB_DB']]
+
+    def open_spider(self, spider):
+        self.client = pymongo.MongoClient(settings['MONGODB_SERVER'], settings['MONGODB_PORT'])
+        db = self.client[settings['MONGODB_DB']]
         db.authenticate(settings['MONGO_USER'], settings['MONGO_PSW'])
-        self.collection = db[settings['MONGODB_COLLECTION']]
+        self.collection = db[self.mongo_collection]
+
+    def close_spider(self, spider):
+        self.client.close()
 
     def process_item(self, item, spider):
         for key, data in item.iteritems():
