@@ -70,7 +70,7 @@ class TuDouItem(Item):
     program_alias = Field(input_processor=Compose(extract_word))  # 节目别名
     area = Field()  # 地区
     image = Field()  # 封面地址
-    presenter = Field(input_processor=MapCompose(extract_word))  # 主讲人
+    presenter = Field()  # 主讲人
     episodes = Field()  # 总集数或更新至
     # episodes_update = Field()  # 更新至
     tag = Field()  # 类型
