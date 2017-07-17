@@ -13,7 +13,7 @@ from scrapy.loader import ItemLoader
 from scrapy.selector import Selector
 from scrapy.spiders import CrawlSpider, Rule
 
-from kangjia.items import JiwuHousePrice
+from kangjia.items import JiwuHousePriceItem
 
 default_encoding = 'utf-8'
 if sys.getdefaultencoding() != default_encoding:
@@ -55,7 +55,7 @@ class JiwuHousePriceSpider(CrawlSpider):
 
         for region in region_list:
             region = region.extract()
-            region_items = ItemLoader(JiwuHousePrice(), response=response)
+            region_items = ItemLoader(JiwuHousePriceItem(), response=response)
             region_items.add_xpath("province", "*", re="province=(.*?);")
             # items.add_xpath("province", "//meta[4]/@content", re="province=(.*?);")
             region_items.add_xpath("city", "*", re="city=(.*?);coord")
