@@ -29,11 +29,18 @@ def extract_word(field):
 
 
 def create_record_id(name):
-    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    # current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    current_time = time.time()
     m = hashlib.md5()
-    m.update(name + current_time)
+    m.update('{name}{time}'.format(name=name, time=current_time))
     record_id = m.hexdigest()
     return record_id
+
+
+def jiwu_update_date(date):
+    if date:
+        new_date = date[0].replace(u"'", u'').replace(u'-', u'年').replace(u'：', u'')
+        return new_date
 
 
 class ShafaItem(Item):
@@ -84,6 +91,19 @@ class TuDouItem(Item):
     director = Field()  # 编导
     cast = Field()  # 声优
     producer = Field()  # 电视台
+
+    _in_time = Field()
+    _utime = Field()
+    _record_id = Field(input_processor=MapCompose(create_record_id))
+
+
+class JiwuHousePrice(Item):
+    province = Field()  # 省份
+    city = Field()  # 行政市
+    region = Field()  # 区（如南山、福田），该字段为空表示全市价格
+    new_house_price = Field()  # 新房价格
+    second_house_price = Field()  # 二手房价格
+    update_date = Field(input_processor=Compose(jiwu_update_date))  # 更新时间
 
     _in_time = Field()
     _utime = Field()
