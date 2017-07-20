@@ -10,6 +10,7 @@ from scrapy import signals
 import random
 import linecache
 import logging
+import requests
 
 
 class KangjiaSpiderMiddleware(object):
@@ -84,7 +85,10 @@ class ProxyMiddleware(object):
     """
 
     def process_request(self, request, spider):
-        proxy_list = linecache.getlines('kangjia/proxies_200.txt')
+        proxy_url = 'http://112.74.163.187:23128/__static__/proxies.txt'
+        proxy_requests = requests.get(proxy_url)
+        proxy_list = proxy_requests.content.split('\n')
+
         proxy_entire = random.choice(proxy_list)
 
         user_pass = proxy_entire.split('@')[0]

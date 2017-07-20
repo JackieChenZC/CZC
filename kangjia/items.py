@@ -10,6 +10,7 @@ import logging
 import time
 from scrapy.item import Item, Field
 from scrapy.loader.processors import MapCompose, Compose
+from w3lib.html import remove_tags
 
 
 def extract_word(field):
@@ -41,6 +42,49 @@ def jiwu_update_date(date):
     if date:
         new_date = date[0].replace(u"'", u'').replace(u'-', u'年').replace(u'：', u'')
         return new_date
+
+
+# 去除空格、换行符
+def remove_blank(content):
+    if content:
+        if isinstance(content, list):
+            content = ','.join(content)  # 补丁
+        new_content = content.replace(u'\n', u'').replace(u' ', u'')
+    else:
+        new_content = content
+    return new_content
+
+
+def baidu_publish_time(content):
+    if isinstance(content, list):
+        content = ','.join(content)
+    if not content:
+        publish_time = content.split(' ')[-1]
+        date = time.strftime("%Y-%m-%d ", time.localtime())
+        new_time = date + publish_time
+    else:
+        new_time = content
+    return new_time
+
+
+def weather_date(date):
+    if date:
+        if isinstance(date, list):
+            date = date[0]
+        year = unicode(time.localtime().tm_year)
+        if year not in date:
+            new_date = year + date
+        else:
+            new_date = date
+    else:
+        new_date = date
+    return new_date
+
+
+def extract_place_name(place_name):
+    if place_name:
+        place_name = place_name[0].replace(u"pm2.5", u"").replace(u"明日", u"").replace(u"天气预报", u"")
+    return place_name
 
 
 class ShafaItem(Item):
@@ -97,13 +141,64 @@ class TuDouItem(Item):
     _record_id = Field(input_processor=MapCompose(create_record_id))
 
 
-class JiwuHousePrice(Item):
+class JiwuHousePriceItem(Item):
     province = Field()  # 省份
     city = Field()  # 行政市
     region = Field()  # 区（如南山、福田），该字段为空表示全市价格
     new_house_price = Field()  # 新房价格
     second_house_price = Field()  # 二手房价格
     update_date = Field(input_processor=Compose(jiwu_update_date))  # 更新时间
+
+    _in_time = Field()
+    _utime = Field()
+    _record_id = Field(input_processor=MapCompose(create_record_id))
+
+
+class WeatherItem(Item):
+    region = Field(input_processor=Compose(extract_place_name))  # 区域
+    city = Field(input_processor=Compose(extract_place_name))  # 城市
+    province = Field(input_processor=Compose(extract_place_name))  # 省份
+    city.items()
+    date = Field(input_processor=Compose(weather_date))  # 日期
+    high_temp = Field()  # 最高气温
+    low_temp = Field()  # 最低气温
+    weather = Field()  # 天气
+    wind = Field()  # 风向风力
+    aqi = Field()  # 空气质量指数
+    quality = Field()  # 空气质量
+
+    _in_time = Field()
+    _utime = Field()
+    _record_id = Field(input_processor=MapCompose(create_record_id))
+
+
+class IqiyiTVplayItem(Item):
+    title = Field()  # 名称
+    score = Field(input_processor=MapCompose(remove_tags, remove_blank))  # 评分
+    votetop = Field()  # 顶
+    votedown = Field()  # 踩
+    new_title = Field(input_processor=MapCompose(extract_word))  # 别名
+    status = Field(input_processor=MapCompose(extract_word))  # 总集数或更新集情况
+    update_time = Field(input_processor=MapCompose(extract_word, remove_blank))  # 更新时间
+    pub_year = Field(input_processor=MapCompose(extract_word))  # 上映时间
+    type = Field()  # 类型
+    area = Field()  # 地区remove_blank
+    director = Field()  # 导演
+    actor = Field()  # 演员
+    summary = Field(input_processor=Compose(remove_blank))  # 简介
+    video_type = Field()  # 播放渠道
+    detail_url = Field()  # 详细地址
+    video_id = Field()  # 电影ID
+
+    _in_time = Field()
+    _utime = Field()
+    _record_id = Field(input_processor=MapCompose(create_record_id))
+
+
+class BaiduNewsItem(Item):
+    title = Field()  # 新闻标题
+    url = Field()  # 新闻链接
+    publish_time = Field(input_processor=Compose(baidu_publish_time))  # 新闻发布时间
 
     _in_time = Field()
     _utime = Field()
