@@ -57,9 +57,9 @@ DOWNLOADER_MIDDLEWARES = {
     'kangjia.middlewares.ProxyMiddleware': 100,
 
     # 配置scrapy-splash
-    'scrapy_splash.SplashCookiesMiddleware': 103,
-    'scrapy_splash.SplashMiddleware': 105,
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+    # 'scrapy_splash.SplashCookiesMiddleware': 103,
+    # 'scrapy_splash.SplashMiddleware': 105,
+    # 'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
 
 }
 
@@ -144,12 +144,12 @@ MONGO_PSW = "haizhi"
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-FEED_EXPORT_ENCODING = 'utf-8'
+# FEED_EXPORT_ENCODING = 'utf-8'
 # 以下为scrapy-splash的配置信息
-SPLASH_URL = 'http://localhost:8050'
-SPIDER_MIDDLEWARES = {
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
-}
-
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
-HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+# SPLASH_URL = 'http://localhost:8050'
+# SPIDER_MIDDLEWARES = {
+#     'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+# }
+#
+# DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+# HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
