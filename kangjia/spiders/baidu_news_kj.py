@@ -40,10 +40,10 @@ class BaiduNewsSpider(Spider):
             items = ItemLoader(BaiduNewsItem(), response=response)
             items.add_xpath("title", "//div[@class='p2']/div[%s]/a/text()" % index)
             items.add_xpath("url", "//div[@class='p2']/div[%s]/a/@href" % index)
-            items.add_xpath("publish_time", "//div[@class='p2']/div[%s]/span[@class='c']" % index)
+            items.add_xpath("publish_time", "//div[@class='p2']/div[%s]/span[@class='c']/text()" % index)
 
             current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             items.add_value("_in_time", current_time)
             items.add_value("_utime", current_time)
-            items.add_value("_record_id", self.name)
+            items.add_value("_record_id", '{0}{1}'.format(self.name, items.get_collected_values('title')))
             yield items.load_item()
