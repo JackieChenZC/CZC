@@ -33,7 +33,14 @@ class KangjiaPipeline(object):
     def process_item(self, item, spider):
         for key, data in item.iteritems():
             item[key] = ','.join(filter(lambda x: x != u'/', data))
-        self.collection.insert(dict(item))
+        cursor = self.collection.find({'_record_id': item['_record_id']})
+        cursor = list(cursor)
+        if cursor:
+            del item['_in_time']
+            self.collection.update({'_record_id': item['_record_id']}, dict(item))
+        else:
+            self.collection.insert(dict(item))
+
         # valid = True
         # for data in item:
         #     if not data:

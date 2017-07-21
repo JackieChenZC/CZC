@@ -16,9 +16,9 @@ from w3lib.html import remove_tags
 def extract_word(field):
     if field:
         if isinstance(field, list):
-            field = ','.join(field)  # 补丁
+            field = u','.join(field)  # 补丁
         try:
-            field_list = field.split('：')
+            field_list = field.split(u'：')
             new_field = field_list[1]
         except:
             logging.info('该字段未知错误：{0}'.format(field))
@@ -31,9 +31,8 @@ def extract_word(field):
 
 def create_record_id(name):
     # current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    current_time = time.time()
     m = hashlib.md5()
-    m.update('{name}{time}'.format(name=name, time=current_time))
+    m.update(name)
     record_id = m.hexdigest()
     return record_id
 
@@ -48,7 +47,7 @@ def jiwu_update_date(date):
 def remove_blank(content):
     if content:
         if isinstance(content, list):
-            content = ','.join(content)  # 补丁
+            content = u','.join(content)  # 补丁
         new_content = content.replace(u'\n', u'').replace(u' ', u'')
     else:
         new_content = content
@@ -57,11 +56,16 @@ def remove_blank(content):
 
 def baidu_publish_time(content):
     if isinstance(content, list):
-        content = ','.join(content)
-    if not content:
-        publish_time = content.split(' ')[-1]
-        date = time.strftime("%Y-%m-%d ", time.localtime())
-        new_time = date + publish_time
+        content = ''.join(content)
+    if content:
+        publish_time = content.split()[1:]
+        publish_time = ' '.join(publish_time)
+        if len(publish_time) <= 6:
+            date = time.strftime("%Y-%m-%d ", time.localtime())
+            new_time = date + publish_time
+        else:
+            year = unicode(time.localtime().tm_year)
+            new_time = '{0}-{1}'.format(year, publish_time)
     else:
         new_time = content
     return new_time
