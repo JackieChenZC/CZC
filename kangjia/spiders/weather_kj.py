@@ -132,7 +132,7 @@ class WeatherSpider(SitemapSpider):
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         air_items.add_value("_in_time", current_time)
         air_items.add_value("_utime", current_time)
-        air_items.add_value("_record_id", self.name)
+        air_items.add_value("_record_id", '{0}{1}'.format(self.name, air_items.get_collected_values('region')))
         yield air_items.load_item()
 
     def parse_tomorrow(self, response):
@@ -170,5 +170,5 @@ class WeatherSpider(SitemapSpider):
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         tomo_air_items.add_value("_in_time", current_time)
         tomo_air_items.add_value("_utime", current_time)
-        tomo_air_items.add_value("_record_id", self.name)
+        tomo_air_items.add_value("_record_id", '{0}{1}'.format(self.name, tomo_air_items.get_collected_values('region')))
         yield tomo_air_items.load_item()

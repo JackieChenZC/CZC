@@ -68,14 +68,16 @@ class JiwuHousePriceSpider(CrawlSpider):
                                        u"//td/a[@title='%s二手房房价']/parent::*/following-sibling::*[1]/text()" % region)
             region_items.add_xpath("second_house_price",
                                    u"//td/a[@title='%s二手房房价']/parent::*/following-sibling::*[2]/text()" % region)
-            city = region_items.get_collected_values("city")[0]
-            if not city == region:
-                region_items.add_value("region", region)
+            # city = region_items.get_collected_values("city")[0]
+            # if not city == region:
+            #     region_items.add_value("region", region)
+            region_items.add_value("region", region)
 
             current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             region_items.add_value("_in_time", current_time)
             region_items.add_value("_utime", current_time)
 
-            region_items.add_value("_record_id", self.name)
+            region_items.add_value("_record_id",
+                                   '{0}{1}'.format(self.name, region_items.get_collected_values('region')))
 
             yield region_items.load_item()

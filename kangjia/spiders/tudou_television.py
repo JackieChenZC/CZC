@@ -85,5 +85,5 @@ class TudouTelevisionSpider(CrawlSpider):
         items.add_value("_in_time", current_time)
         items.add_value("_utime", current_time)
 
-        items.add_value("_record_id", self.name)
+        items.add_value("_record_id", '{0}{1}'.format(self.name, items.get_collected_values('program')))
         yield items.load_item()
